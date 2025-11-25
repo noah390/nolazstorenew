@@ -250,4 +250,41 @@ window.addEventListener('DOMContentLoaded', () => {
   init().then(() => {
     setupFilters();
   });
+  initializeSlider();
 });
+
+// Initialize image slider
+let slideIndex = 1;
+
+function initializeSlider() {
+  showSlide(slideIndex);
+  
+  // Auto slide every 4 seconds
+  setInterval(() => {
+    slideIndex++;
+    if (slideIndex > 3) slideIndex = 1;
+    showSlide(slideIndex);
+  }, 4000);
+}
+
+function currentSlide(n) {
+  showSlide(slideIndex = n);
+}
+
+function showSlide(n) {
+  const slides = document.querySelectorAll('.slide');
+  const dots = document.querySelectorAll('.nav-dot');
+  
+  if (n > slides.length) slideIndex = 1;
+  if (n < 1) slideIndex = slides.length;
+  
+  slides.forEach(slide => slide.classList.remove('active'));
+  dots.forEach(dot => dot.classList.remove('active'));
+  
+  if (slides[slideIndex - 1]) {
+    slides[slideIndex - 1].classList.add('active');
+  }
+  if (dots[slideIndex - 1]) {
+    dots[slideIndex - 1].classList.add('active');
+  }
+}

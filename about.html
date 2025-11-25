@@ -21,7 +21,7 @@
 </nav>
 <div class="header-actions">
 <button id="cartBtn" class="cart-btn">
-🛒 Cart (<span id="cartCount">0</span>)
+Cart (<span id="cartCount">0</span>)
 </button>
 <a href="admin.html" class="btn">Login</a>
 </div>
@@ -53,17 +53,17 @@
 <h2>Our Values</h2>
 <div class="values-grid">
 <div class="value-card">
-<div class="value-icon">🎯</div>
+<div class="value-icon"></div>
 <h3>Quality First</h3>
 <p>We source only the finest materials and work with trusted suppliers to ensure every piece meets our high standards.</p>
 </div>
 <div class="value-card">
-<div class="value-icon">🌍</div>
+<div class="value-icon"></div>
 <h3>Sustainable Fashion</h3>
 <p>We're committed to responsible fashion practices that respect both people and the planet.</p>
 </div>
 <div class="value-card">
-<div class="value-icon">💝</div>
+<div class="value-icon"></div>
 <h3>Customer Focused</h3>
 <p>Your satisfaction is our priority. We provide personalized service and support every step of the way.</p>
 </div>
@@ -89,7 +89,7 @@
 </div>
 <div class="team-member">
 <div class="member-image">
-<span>👤</span>
+<span></span>
 </div>
 <h3>Aiden Grace</h3>
 <p>Customer Experience Lead</p>
@@ -97,25 +97,39 @@
 </div>
 </section>
 
-<section class="showcase-section">
+<section class="slider-section section">
 <div class="section-header">
 <h3 class="section-title">Our Specialties</h3>
 <p class="section-subtitle">From elegant clothing to stunning jewelry</p>
 </div>
-<div class="showcase-grid">
-<div class="showcase-item">
-<img src="https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=500&h=600&fit=crop&crop=center" alt="Designer Clothing">
-<div class="showcase-overlay">
+<div class="image-slider">
+<div class="slider-container">
+<div class="slide active">
+<img src="https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=1200&h=400&fit=crop&crop=center" alt="Designer Clothing">
+<div class="slide-overlay">
 <h4>Designer Clothing</h4>
 <p>Curated fashion pieces</p>
 </div>
 </div>
-<div class="showcase-item">
-<img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=500&h=600&fit=crop&crop=center" alt="Fine Jewelry">
-<div class="showcase-overlay">
+<div class="slide">
+<img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=1200&h=400&fit=crop&crop=center" alt="Fine Jewelry">
+<div class="slide-overlay">
 <h4>Fine Jewelry</h4>
 <p>Elegant accessories</p>
 </div>
+</div>
+<div class="slide">
+<img src="https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=1200&h=400&fit=crop&crop=center" alt="Fashion Collection">
+<div class="slide-overlay">
+<h4>Fashion Collection</h4>
+<p>Contemporary styles</p>
+</div>
+</div>
+</div>
+<div class="slider-nav">
+<button class="nav-dot active" onclick="currentSlide(1)"></button>
+<button class="nav-dot" onclick="currentSlide(2)"></button>
+<button class="nav-dot" onclick="currentSlide(3)"></button>
 </div>
 </div>
 </section>
@@ -144,8 +158,8 @@
 </div>
 <div class="footer-section">
 <h4>Contact</h4>
-<p>📱 WhatsApp: +234 904 645 6469</p>
-<p>📧 Email: hello@nolazstore.com</p>
+<p>WhatsApp: +234 904 645 6469</p>
+<p>Email: hello@nolazstore.com</p>
 </div>
 </div>
 <div class="footer-bottom">
@@ -172,5 +186,43 @@
 
 <script src="mobile.js"></script>
 <script src="cart.js"></script>
+<script>
+// Initialize slider for about page
+let slideIndex = 1;
+
+function initializeSlider() {
+  showSlide(slideIndex);
+  
+  setInterval(() => {
+    slideIndex++;
+    if (slideIndex > 3) slideIndex = 1;
+    showSlide(slideIndex);
+  }, 4000);
+}
+
+function currentSlide(n) {
+  showSlide(slideIndex = n);
+}
+
+function showSlide(n) {
+  const slides = document.querySelectorAll('.slide');
+  const dots = document.querySelectorAll('.nav-dot');
+  
+  if (n > slides.length) slideIndex = 1;
+  if (n < 1) slideIndex = slides.length;
+  
+  slides.forEach(slide => slide.classList.remove('active'));
+  dots.forEach(dot => dot.classList.remove('active'));
+  
+  if (slides[slideIndex - 1]) {
+    slides[slideIndex - 1].classList.add('active');
+  }
+  if (dots[slideIndex - 1]) {
+    dots[slideIndex - 1].classList.add('active');
+  }
+}
+
+window.addEventListener('DOMContentLoaded', initializeSlider);
+</script>
 </body>
 </html>

@@ -34,13 +34,35 @@
 <p>Browse our curated selection of contemporary fashion pieces</p>
 </section>
 
-<section class="banner-ad">
-<div class="banner-content">
-<img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1200&h=300&fit=crop&crop=center" alt="New Arrivals Banner">
-<div class="banner-overlay">
-<h3>New Arrivals</h3>
-<p>Fresh styles just landed - Shop the latest trends</p>
-<a href="#products" class="banner-btn">Shop New Arrivals</a>
+<section class="slider-section section">
+<div class="image-slider">
+<div class="slider-container">
+<div class="slide active">
+<img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1200&h=300&fit=crop&crop=center" alt="New Arrivals">
+<div class="slide-overlay">
+<h4>New Arrivals</h4>
+<p>Fresh styles just landed</p>
+</div>
+</div>
+<div class="slide">
+<img src="https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=1200&h=300&fit=crop&crop=center" alt="Designer Clothing">
+<div class="slide-overlay">
+<h4>Designer Clothing</h4>
+<p>Curated fashion pieces</p>
+</div>
+</div>
+<div class="slide">
+<img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=1200&h=300&fit=crop&crop=center" alt="Fine Jewelry">
+<div class="slide-overlay">
+<h4>Fine Jewelry</h4>
+<p>Elegant accessories</p>
+</div>
+</div>
+</div>
+<div class="slider-nav">
+<button class="nav-dot active" onclick="currentSlide(1)"></button>
+<button class="nav-dot" onclick="currentSlide(2)"></button>
+<button class="nav-dot" onclick="currentSlide(3)"></button>
 </div>
 </div>
 </section>
@@ -113,5 +135,43 @@
 <script src="mobile.js"></script>
 <script src="cart.js"></script>
 <script src="script.js"></script>
+<script>
+// Initialize slider for shop page
+let shopSlideIndex = 1;
+
+function initializeShopSlider() {
+  showShopSlide(shopSlideIndex);
+  
+  setInterval(() => {
+    shopSlideIndex++;
+    if (shopSlideIndex > 3) shopSlideIndex = 1;
+    showShopSlide(shopSlideIndex);
+  }, 4000);
+}
+
+function currentSlide(n) {
+  showShopSlide(shopSlideIndex = n);
+}
+
+function showShopSlide(n) {
+  const slides = document.querySelectorAll('.slide');
+  const dots = document.querySelectorAll('.nav-dot');
+  
+  if (n > slides.length) shopSlideIndex = 1;
+  if (n < 1) shopSlideIndex = slides.length;
+  
+  slides.forEach(slide => slide.classList.remove('active'));
+  dots.forEach(dot => dot.classList.remove('active'));
+  
+  if (slides[shopSlideIndex - 1]) {
+    slides[shopSlideIndex - 1].classList.add('active');
+  }
+  if (dots[shopSlideIndex - 1]) {
+    dots[shopSlideIndex - 1].classList.add('active');
+  }
+}
+
+window.addEventListener('DOMContentLoaded', initializeShopSlider);
+</script>
 </body>
 </html>

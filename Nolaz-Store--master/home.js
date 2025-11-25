@@ -3,7 +3,7 @@ const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTU0jwvRk
 
 // Load featured products (first 6 products)
 async function loadFeaturedProducts() {
-  const featuredEl = document.getElementById('featuredProducts');
+  const featuredEl = document.getElementById('featuredProducts') || document.getElementById('products');
   
   if (!SHEET_CSV_URL || SHEET_CSV_URL.includes('REPLACE_WITH')) {
     featuredEl.innerHTML = '<p>Loading products...</p>';

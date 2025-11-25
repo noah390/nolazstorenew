@@ -16,6 +16,9 @@ class ShoppingCart {
     const cartBtn = document.getElementById('cartBtn');
     if (cartBtn) {
       cartBtn.addEventListener('click', () => this.showCart());
+      console.log('Cart button event listener added');
+    } else {
+      console.error('Cart button not found');
     }
 
     // Modal close
@@ -211,8 +214,36 @@ Please confirm my order and provide payment details.`;
   }
 }
 
-// Initialize cart
-const cart = new ShoppingCart();
+// Initialize cart when DOM is ready
+let cart;
+
+function initializeCart() {
+  cart = new ShoppingCart();
+  console.log('Cart initialized');
+}
+
+// Initialize immediately if DOM is ready, otherwise wait
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeCart);
+} else {
+  initializeCart();
+}
+
+// Fallback cart button handler
+document.addEventListener('DOMContentLoaded', function() {
+  const cartBtn = document.getElementById('cartBtn');
+  if (cartBtn && !cartBtn.hasAttribute('data-cart-initialized')) {
+    cartBtn.setAttribute('data-cart-initialized', 'true');
+    cartBtn.addEventListener('click', function() {
+      if (cart) {
+        cart.showCart();
+      } else {
+        console.error('Cart not initialized');
+        alert('Cart is loading, please try again.');
+      }
+    });
+  }
+});
 
 // Global function to add to cart (called from product cards)
 function addToCart(productId) {

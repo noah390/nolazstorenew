@@ -14,8 +14,8 @@
 </div>
 <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
 <nav class="main-nav" id="mainNav">
-<a href="home.html">Home</a>
-<a href="shop.html" class="active">Shop</a>
+<a href="index.html" class="active">Home</a>
+<a href="shop.html">Shop</a>
 <a href="about.html">About</a>
 <a href="contact.html">Contact</a>
 </nav>
@@ -33,6 +33,10 @@ Cart (<span id="cartCount">0</span>)
 <section class="hero">
 <h2>Contemporary Fashion</h2>
 <p>Discover our curated collection of minimal, modern pieces. Shop easily through WhatsApp with instant customer support.</p>
+<div class="hero-actions">
+<a href="shop.html" class="btn btn-primary">Shop Now</a>
+<a href="about.html" class="btn btn-outline">Learn More</a>
+</div>
 </section>
 
 <section class="slider-section section">
@@ -68,14 +72,45 @@ Cart (<span id="cartCount">0</span>)
 </div>
 </section>
 
-<section id="products" class="products-grid">
+<section class="featured-products section">
+<div class="section-header">
+<h3 class="section-title">Featured Products</h3>
+<p class="section-subtitle">Handpicked pieces from our latest collection</p>
+</div>
+<div id="products" class="products-grid">
 <!-- Products will be injected here -->
+</div>
+<div class="text-center">
+<a href="shop.html" class="btn btn-primary">View All Products</a>
+</div>
 </section>
 </main>
 
 
 <footer class="site-footer">
-<p>© Nolaz Store — Built with ❤️</p>
+<div class="footer-content">
+<div class="footer-section">
+<h4>Nolaz Store</h4>
+<p>Contemporary fashion for the modern lifestyle.</p>
+</div>
+<div class="footer-section">
+<h4>Quick Links</h4>
+<ul>
+<li><a href="index.html">Home</a></li>
+<li><a href="shop.html">Shop</a></li>
+<li><a href="about.html">About</a></li>
+<li><a href="contact.html">Contact</a></li>
+</ul>
+</div>
+<div class="footer-section">
+<h4>Contact</h4>
+<p>WhatsApp: +234 904 645 6469</p>
+<p>Email: hello@nolazstore.com</p>
+</div>
+</div>
+<div class="footer-bottom">
+<p>© 2024 Nolaz Store — Built with ❤️</p>
+</div>
 </footer>
 
 
@@ -98,6 +133,6 @@ Cart (<span id="cartCount">0</span>)
 
 <script src="mobile.js"></script>
 <script src="cart.js"></script>
-<script src="script.js"></script>
+<script src="home.js"></script>
 </body>
 </html>

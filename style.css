@@ -198,7 +198,7 @@ body {
 
 .brand h1 {
   margin: 0;
-  font-size: 28px;
+  font-size: 36px;
   font-weight: 800;
   background: var(--gradient-primary);
   -webkit-background-clip: text;
@@ -1572,9 +1572,17 @@ body {
   display: none;
   background: none;
   border: none;
-  font-size: 24px;
+  font-size: 28px;
   cursor: pointer;
-  padding: 8px;
+  padding: 12px;
+  color: var(--text);
+  border-radius: var(--radius);
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle:hover {
+  background: var(--bg-secondary);
+  color: var(--primary);
 }
 
 .main-nav.mobile-open {
@@ -1601,7 +1609,7 @@ body {
   }
   
   .brand h1 {
-    font-size: 20px;
+    font-size: 24px;
   }
   
   .main-nav {
@@ -1655,8 +1663,8 @@ body {
   
   /* Products Mobile */
   .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
   }
   
   .card {
@@ -1809,10 +1817,11 @@ body {
   }
   
   .btn-small {
-    padding: 6px 10px;
-    font-size: 12px;
-    margin: 2px;
+    padding: 12px 16px;
+    font-size: 14px;
+    margin: 4px;
     display: inline-block;
+    min-height: 44px;
   }
   
   /* Footer Mobile */
@@ -1835,12 +1844,12 @@ body {
   
   /* Mobile Slider Styles */
   .slider-section {
-    margin: var(--spacing-xl) -16px;
-    padding: var(--spacing-lg) 16px;
+    margin: var(--spacing-xl) 0;
+    padding: var(--spacing-lg);
   }
   
   .slider-container {
-    height: 280px;
+    height: 300px;
   }
   
   .slide-overlay {
@@ -1881,24 +1890,20 @@ body {
 @media (max-width: 480px) {
   /* Extra Small Mobile */
   .header-content {
-    padding: 8px 12px;
-    flex-direction: column;
-    gap: 8px;
+    padding: 12px;
+    gap: 12px;
   }
   
   .brand h1 {
-    font-size: 18px;
+    font-size: 20px;
   }
   
   .main-nav {
-    width: 100%;
-    justify-content: center;
-    gap: 16px;
+    gap: 12px;
   }
   
   .header-actions {
-    width: 100%;
-    justify-content: center;
+    gap: 8px;
   }
   
   .container {
@@ -1919,7 +1924,7 @@ body {
   
   .products-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 20px;
   }
   
   .card {
@@ -1971,7 +1976,7 @@ body {
   }
   
   .slider-container {
-    height: 200px;
+    height: 250px;
   }
   
   .slide-overlay {

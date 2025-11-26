@@ -145,17 +145,18 @@ function createProductCard(product) {
   return div;
 }
 
-// Ensure global functions are available
-window.showProductDetails = function(productId) {
-  console.log('Home.js showProductDetails called for:', productId);
-  const product = window.productsData?.find(p => p.id === productId);
-  if (!product) {
-    console.error('Product not found:', productId);
-    alert('Product details not available.');
-    return;
-  }
-  
-  const details = `Product Details:
+// Only define functions if they don't exist (cart.js takes priority)
+if (typeof window.showProductDetails === 'undefined') {
+  window.showProductDetails = function(productId) {
+    console.log('Home.js showProductDetails called for:', productId);
+    const product = window.productsData?.find(p => p.id === productId);
+    if (!product) {
+      console.error('Product not found:', productId);
+      alert('Product details not available.');
+      return;
+    }
+    
+    const details = `Product Details:
 
 Name: ${product.name}
 Price: ₦${parseInt(product.price || 0).toLocaleString()}
@@ -164,22 +165,20 @@ Category: ${product.category || 'Uncategorized'}
 Product ID: ${product.id}
 
 Contact us on WhatsApp for more information!`;
-  
-  alert(details);
-};
+    
+    alert(details);
+  };
+}
 
-window.addToCart = function(productId) {
-  console.log('Home.js addToCart called for:', productId);
-  const product = window.productsData?.find(p => p.id === productId);
-  if (!product) {
-    alert('Product not found. Please try again.');
-    return;
-  }
-  
-  // Use cart if available, otherwise fallback to WhatsApp
-  if (window.cart) {
-    window.cart.addItem(product);
-  } else {
+if (typeof window.addToCart === 'undefined') {
+  window.addToCart = function(productId) {
+    console.log('Home.js addToCart fallback called for:', productId);
+    const product = window.productsData?.find(p => p.id === productId);
+    if (!product) {
+      alert('Product not found. Please try again.');
+      return;
+    }
+    
     const message = `Hello! I'd like to add this item to my cart:
 
 ${product.name}
@@ -190,8 +189,8 @@ Please help me place an order.`;
     
     const whatsappUrl = `https://wa.me/2349046456469?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
-  }
-};
+  };
+}
 
 // Initialize when page loads
 let slideIndex = 1;

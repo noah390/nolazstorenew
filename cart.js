@@ -233,6 +233,9 @@ function initializeCart() {
   cart = new ShoppingCart();
   console.log('Cart initialized');
   
+  // Ensure global functions are available
+  window.cart = cart;
+  
   // Periodically update cart count to ensure sync
   setInterval(() => {
     if (cart) {

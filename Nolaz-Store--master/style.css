@@ -147,6 +147,12 @@ body {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.header-actions .btn {
+  display: inline-block;
+  white-space: nowrap;
 }
 
 /* Cart Button */

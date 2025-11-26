@@ -163,15 +163,10 @@
         document.body.innerHTML = '<div style="text-align:center;padding:50px;font-family:Arial;"><h1>Access Denied</h1><p>Automated access detected.</p></div>';
     }
 
-    // Obfuscate sensitive data
+    // Keep admin links visible but secure
     window.addEventListener('load', function() {
-        // Hide admin links from non-admin users
-        const adminLinks = document.querySelectorAll('a[href*="admin"]');
-        adminLinks.forEach(link => {
-            if (!localStorage.getItem('nolazAdminLoggedIn')) {
-                link.style.display = 'none';
-            }
-        });
+        // Admin links remain visible for access
+        console.log('Admin access available via Login button');
     });
 
 })();

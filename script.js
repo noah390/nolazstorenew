@@ -299,6 +299,163 @@ window.showProductDetails = function(productId) {
     return;
   }
   
+  const modal = document.getElementById('productModal');
+  const detailsContainer = document.getElementById('productDetails');
+  
+  if (!modal || !detailsContainer) {
+    // Fallback to alert if modal not available
+    const details = `Product Details:\n\nName: ${product.name}\nPrice: ₦${parseInt(product.price || 0).toLocaleString()}\nDescription: ${product.description || 'No description'}\nCategory: ${product.category || 'Uncategorized'}\nProduct ID: ${product.id}`;
+    alert(details);
+    return;
+  }
+  
+  const price = product.price ? `₦${parseInt(product.price).toLocaleString()}` : 'Price on request';
+  const categoryDisplay = product.category ? product.category.charAt(0).toUpperCase() + product.category.slice(1) : 'Product';
+  
+  detailsContainer.innerHTML = `
+    <div class="product-detail-content">
+      <div class="product-detail-image">
+        <img src="${product.image || 'https://via.placeholder.com/400x300'}" alt="${product.name}">
+      </div>
+      <div class="product-detail-info">
+        <div class="product-category">${categoryDisplay}</div>
+        <h2>${product.name}</h2>
+        <div class="product-price">${price}</div>
+        <p class="product-description">${product.description || 'No description available'}</p>
+        <div class="product-actions">
+          <button class="btn btn-primary" onclick="addToCart('${product.id}'); closeProductModal();">Add to Cart</button>
+          <button class="btn btn-success" onclick="contactWhatsApp('${product.id}')">Contact via WhatsApp</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  modal.style.display = 'block';
+};
+
+window.closeProductModal = function() {
+  const modal = document.getElementById('productModal');
+  if (modal) modal.style.display = 'none';
+};
+
+window.contactWhatsApp = function(productId) {
+  const product = window.productsData?.find(p => p.id === productId);
+  if (!product) return;
+  
+  const whatsappLink = generateWhatsAppLink(product);
+  window.open(whatsappLink, '_blank');
+};
+
+// Initialize the store with both Firebase and Google Sheets
+async function init() {
+  const productsEl = document.getElementById('products');
+  if (!productsEl) return;
+  
+  showLoading();
+  
+  let allProducts = [];
+  
+  // Load from Firebase Firestore
+  try {
+    if (window.db) {
+      const firestoreSnapshot = await db.collection('products').get();
+      firestoreSnapshot.forEach(doc => {
+        const data = doc.data();
+        if (data.name && data.price && data.status !== 'inactive') {
+          allProducts.push({
+            id: doc.id,
+            source: 'Firebase',
+            category: normalizeCategory(data.category),
+            ...data
+          });
+        }
+      });
+      console.log('Products loaded from Firebase:', allProducts.length);
+    }
+  } catch (error) {
+    console.warn('Failed to load from Firebase:', error);
+  }
+  
+  // Load from Google Sheets
+  if (SHEET_CSV_URL && !SHEET_CSV_URL.includes('REPLACE_WITH')) {
+    try {
+      const response = await fetch(SHEET_CSV_URL);
+      
+      if (response.ok) {
+        const csvData = await response.text();
+        const sheetProducts = csvToArray(csvData);
+        
+        // Filter active products and normalize categories
+        sheetProducts.forEach(product => {
+          if (product.name && product.price && (product.status || 'active').toLowerCase() !== 'inactive') {
+            allProducts.push({
+              id: product.id || 'sheet_' + Date.now() + Math.random(),
+              source: 'Google Sheets',
+              category: normalizeCategory(product.category),
+              ...product
+            });
+          }
+        });
+        
+        console.log('Products loaded from Google Sheets:', sheetProducts.length);
+      }
+    } catch (error) {
+      console.warn('Failed to load from Google Sheets:', error);
+    }
+  }
+  
+  // If no products loaded, use sample products
+  if (allProducts.length === 0) {
+    allProducts = getSampleProducts();
+    console.log('Using sample products:', allProducts.length);
+  }
+  
+  // Store products globally for cart and details
+  window.productsData = allProducts;
+  
+  if (allProducts.length === 0) {
+    showEmpty();
+    return;
+  }
+  
+  // Clear loading and add products
+  productsEl.innerHTML = '';
+  allProducts.forEach(product => {
+    productsEl.appendChild(createProductCard(product));
+  });
+  
+  console.log('Total products loaded:', allProducts.length);
+  return allProducts;
+}
+
+// Wait for Firebase to initialize before loading products
+if (window.firebase) {
+  firebase.auth().onAuthStateChanged(() => {
+    init();
+  });
+} else {
+  // Fallback if Firebase not available
+  window.addEventListener('DOMContentLoaded', () => {
+    init();
+  });
+}product = window.productsData?.find(p => p.id === productId);
+    if (product) {
+      window.cart.addItem(product);
+    } else {
+      alert('Product not found. Please try again.');
+    }
+  } else {
+    alert('Cart is loading, please try again.');
+  }
+};
+
+window.showProductDetails = function(productId) {
+  const product = window.productsData?.find(p => p.id === productId);
+  if (!product) {
+    alert('Product details not available.');
+    return;
+  }
+  
   const details = `Product Details:\n\nName: ${product.name}\nPrice: ₦${parseInt(product.price || 0).toLocaleString()}\nDescription: ${product.description || 'No description'}\nCategory: ${product.category || 'Uncategorized'}\nProduct ID: ${product.id}\n\nContact us on WhatsApp to place your order!`;
   alert(details);
 };

@@ -13,11 +13,13 @@ class BlogSystem {
 
   async loadPosts() {
     try {
-      const postsRef = db.collection('blogPosts').orderBy('date', 'desc');
+      const postsRef = db.collection('blogPosts').orderBy('createdAt', 'desc');
       const snapshot = await postsRef.get();
       this.posts = [];
       snapshot.forEach(doc => {
-        this.posts.push({ id: doc.id, ...doc.data() });
+        const data = doc.data();
+        // Include all posts regardless of author - admin posts are now visible to all users
+        this.posts.push({ id: doc.id, ...data });
       });
       
       if (this.posts.length === 0) {

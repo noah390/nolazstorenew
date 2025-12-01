@@ -220,14 +220,57 @@ Please help me place an order.`;
   };
 }
 
-// Wait for Firebase to initialize before loading products
+// Load blog posts for homepage preview
+async function loadBlogPreview() {
+  const blogEl = document.getElementById('blogPosts');
+  if (!blogEl) return;
+  
+  blogEl.innerHTML = '<p>Loading latest articles...</p>';
+  
+  try {
+    if (window.db) {
+      const snapshot = await db.collection('blogPosts').orderBy('createdAt', 'desc').limit(3).get();
+      const posts = [];
+      snapshot.forEach(doc => {
+        posts.push({ id: doc.id, ...doc.data() });
+      });
+      
+      if (posts.length > 0) {
+        blogEl.innerHTML = posts.map(post => `
+          <article class="blog-preview-card">
+            <div class="blog-preview-image">
+              <img src="${post.image || 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=300&h=200&fit=crop'}" alt="${post.title}">
+            </div>
+            <div class="blog-preview-content">
+              <span class="blog-category">${post.category || 'Blog'}</span>
+              <h4>${post.title}</h4>
+              <p>${post.excerpt || post.content?.substring(0, 80) + '...' || 'Read more about this topic'}</p>
+              <a href="blog.html" class="blog-read-more">Read More →</a>
+            </div>
+          </article>
+        `).join('');
+      } else {
+        blogEl.innerHTML = '<p>No blog posts available yet.</p>';
+      }
+    } else {
+      blogEl.innerHTML = '<p>Blog posts will appear here.</p>';
+    }
+  } catch (error) {
+    console.error('Error loading blog preview:', error);
+    blogEl.innerHTML = '<p>Unable to load blog posts.</p>';
+  }
+}
+
+// Wait for Firebase to initialize before loading content
 if (window.firebase) {
   firebase.auth().onAuthStateChanged(() => {
     loadFeaturedProducts();
+    loadBlogPreview();
   });
 } else {
   // Fallback if Firebase not available
   window.addEventListener('DOMContentLoaded', () => {
     loadFeaturedProducts();
+    setTimeout(loadBlogPreview, 1000); // Give Firebase time to load
   });
 }

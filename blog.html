@@ -300,17 +300,18 @@ async function loadBlogPosts() {
     const posts = [];
     snapshot.forEach(doc => {
       const data = doc.data();
+      // Show all posts regardless of author or status
       posts.push({id: doc.id, ...data});
     });
     
     // Update featured post
-    const featuredPost = posts.find(p => p.featured);
+    const featuredPost = posts.find(p => p.featured) || posts[0];
     if (featuredPost) {
-      document.querySelector('.featured-post-image img').src = featuredPost.image;
+      document.querySelector('.featured-post-image img').src = featuredPost.image || 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=800&h=400&fit=crop';
       document.querySelector('.featured-post-content h2').textContent = featuredPost.title;
       document.querySelector('.post-excerpt').textContent = featuredPost.excerpt;
-      document.querySelector('.post-date').textContent = featuredPost.date;
-      document.querySelector('.read-time').textContent = featuredPost.readTime;
+      document.querySelector('.post-date').textContent = formatDate(featuredPost.date || featuredPost.createdAt);
+      document.querySelector('.read-time').textContent = featuredPost.readTime || '5 min read';
     }
     
     // Store posts globally and update display
@@ -319,15 +320,55 @@ async function loadBlogPosts() {
     displayPosts(posts);
   } catch (error) {
     console.error('Error loading blog posts:', error);
+    // Show default posts if Firebase fails
+    allPosts = getDefaultPosts();
+    displayPosts(allPosts);
   }
+}
+
+function formatDate(dateString) {
+  if (!dateString) return new Date().toLocaleDateString();
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function getDefaultPosts() {
+  return [
+    {
+      id: 'default1',
+      title: 'Welcome to Nolaz Store Blog',
+      excerpt: 'Discover the latest fashion trends and styling tips from our team.',
+      content: 'Welcome to the Nolaz Store blog! Here you\'ll find the latest fashion trends, styling tips, and exclusive insights from our fashion experts.',
+      category: 'Fashion Trends',
+      image: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=800&h=400&fit=crop',
+      author: 'Nolaz Team',
+      date: new Date().toISOString().split('T')[0],
+      readTime: '3 min read',
+      featured: true
+    }
+  ];
 }
 
 let allPosts = [];
 let currentFilter = null;
 
-// Load posts when Firebase is ready
-firebase.auth().onAuthStateChanged(() => {
-  loadBlogPosts();
+// Load posts when page loads
+window.addEventListener('DOMContentLoaded', () => {
+  // Wait for Firebase to initialize
+  if (window.db) {
+    loadBlogPosts();
+  } else {
+    // Retry after a short delay if Firebase isn't ready
+    setTimeout(() => {
+      if (window.db) {
+        loadBlogPosts();
+      } else {
+        // Show default posts if Firebase fails to load
+        allPosts = getDefaultPosts();
+        displayPosts(allPosts);
+      }
+    }, 2000);
+  }
 });
 
 function filterByCategory(category) {
@@ -347,15 +388,15 @@ function displayPosts(posts) {
     postsGrid.innerHTML = posts.slice(0, 6).map(post => `
       <article class="blog-post">
         <div class="post-image">
-          <img src="${post.image}" alt="${post.title}">
-          <div class="post-category">${post.category}</div>
+          <img src="${post.image || 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=250&fit=crop'}" alt="${post.title}">
+          <div class="post-category">${post.category || 'Blog'}</div>
         </div>
         <div class="post-content">
           <h3>${post.title}</h3>
-          <p>${post.excerpt}</p>
+          <p>${post.excerpt || post.content?.substring(0, 100) + '...' || 'No preview available'}</p>
           <div class="post-meta">
-            <span class="post-date">${post.date}</span>
-            <span class="read-time">${post.readTime}</span>
+            <span class="post-date">${formatDate(post.date || post.createdAt)}</span>
+            <span class="read-time">${post.readTime || '3 min read'}</span>
           </div>
           <a href="javascript:void(0)" onclick="showFullPost(this)" class="read-more">Read More →</a>
         </div>
@@ -391,7 +432,33 @@ function showFullPost(element) {
   const post = allPosts.find(p => p.title === title);
   
   if (post) {
-    alert(`Full Article: ${post.title}\n\n${post.content || post.excerpt}`);
+    // Create modal for full post
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.display = 'block';
+    modal.innerHTML = `
+      <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+        <div class="modal-header">
+          <h3>${post.title}</h3>
+          <span class="close" onclick="this.closest('.modal').remove()">&times;</span>
+        </div>
+        <div style="padding: 20px;">
+          <img src="${post.image || 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=800&h=400&fit=crop'}" alt="${post.title}" style="width: 100%; height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 20px;">
+          <div class="post-meta" style="margin-bottom: 20px; color: #666;">
+            <span class="post-category" style="background: #667eea; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 10px;">${post.category || 'Blog'}</span>
+            <span class="post-date">${formatDate(post.date || post.createdAt)}</span>
+            <span style="margin: 0 10px;">•</span>
+            <span class="post-author">By ${post.author || 'Admin'}</span>
+            <span style="margin: 0 10px;">•</span>
+            <span class="read-time">${post.readTime || '3 min read'}</span>
+          </div>
+          <div style="line-height: 1.6; font-size: 16px;">
+            ${post.content || post.excerpt || 'Content not available'}
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
   }
 }
 

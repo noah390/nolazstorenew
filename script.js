@@ -2,6 +2,38 @@
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTU0jwvRkIPHLCwoOk0JC-01c3oP1bXTXB7zugyRW5ijxYlKTyQndXyTZ1h6M75fCqEGUySou8yOJ5C/pub?gid=0&single=true&output=csv'; // Get this from Google Sheets: File > Share > Publish to web > CSV
 const WHATSAPP_NUMBER = '2349046456469'; // Replace with your WhatsApp number (no + sign)
 
+// Normalize category names to match expected format
+function normalizeCategory(category) {
+  if (!category) return '';
+  
+  const normalized = category.toLowerCase().trim();
+  
+  // Map common variations to standard categories
+  const categoryMap = {
+    'clothes': 'clothing',
+    'cloth': 'clothing',
+    'apparel': 'clothing',
+    'fashion': 'clothing',
+    'jewellery': 'jewelry',
+    'jewelery': 'jewelry',
+    'accessories': 'jewelry',
+    'shoe': 'shoes',
+    'footwear': 'shoes',
+    'sneakers': 'shoes',
+    'bag': 'bags',
+    'handbag': 'bags',
+    'handbags': 'bags',
+    'purse': 'bags',
+    'purses': 'bags',
+    'electronic': 'electronics',
+    'tech': 'electronics',
+    'gadget': 'electronics',
+    'gadgets': 'electronics'
+  };
+  
+  return categoryMap[normalized] || normalized;
+}
+
 // Parse CSV data into JavaScript objects
 function csvToArray(csv) {
   const lines = csv.trim().split('\n');
@@ -277,7 +309,7 @@ async function init() {
   // Load from Google Sheets
   if (SHEET_CSV_URL && !SHEET_CSV_URL.includes('REPLACE_WITH')) {
     try {
-      const response = await fetch(SHEET_CSV_URL);
+      const response = await fetch(SHEET_CSV_URL);ch(SHEET_CSV_URL);
       
       if (response.ok) {
         const csvData = await response.text();
@@ -324,38 +356,6 @@ async function init() {
   
   console.log('Total products loaded:', allProducts.length);
   return allProducts; // Return for filter setup
-}
-
-// Normalize category names to match expected format
-function normalizeCategory(category) {
-  if (!category) return '';
-  
-  const normalized = category.toLowerCase().trim();
-  
-  // Map common variations to standard categories
-  const categoryMap = {
-    'clothes': 'clothing',
-    'cloth': 'clothing',
-    'apparel': 'clothing',
-    'fashion': 'clothing',
-    'jewellery': 'jewelry',
-    'jewelery': 'jewelry',
-    'accessories': 'jewelry',
-    'shoe': 'shoes',
-    'footwear': 'shoes',
-    'sneakers': 'shoes',
-    'bag': 'bags',
-    'handbag': 'bags',
-    'handbags': 'bags',
-    'purse': 'bags',
-    'purses': 'bags',
-    'electronic': 'electronics',
-    'tech': 'electronics',
-    'gadget': 'electronics',
-    'gadgets': 'electronics'
-  };
-  
-  return categoryMap[normalized] || normalized;
 }
 
 // Filter and sort functionality

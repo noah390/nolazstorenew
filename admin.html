@@ -27,6 +27,9 @@
   .admin-nav .btn { margin-bottom: 0.5rem; }
   .item-card { flex-direction: column; text-align: center; }
   .item-card img { width: 60px; height: 60px; }
+  .header-content { flex-direction: column; gap: 1rem; align-items: center; }
+  .header-actions { order: -1; }
+  .brand { text-align: center; }
 }
 </style>
 </head>
@@ -341,32 +344,93 @@ async function loadProducts() {
     document.getElementById('productForm').style.display = 'none';
     document.getElementById('productsList').innerHTML = '<h3>Loading products...</h3>';
     
-    const snapshot = await window.db.collection('products').orderBy('createdAt', 'desc').get();
-    const products = [];
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      products.push({id: doc.id, ...data});
-    });
+    let allProducts = [];
     
-    if (products.length === 0) {
+    // Load from Firebase
+    try {
+      const snapshot = await window.db.collection('products').orderBy('createdAt', 'desc').get();
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        allProducts.push({id: doc.id, source: 'Firebase', ...data});
+      });
+    } catch (error) {
+      console.warn('Firebase products load failed:', error);
+    }
+    
+    // Load from Google Sheets
+    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTU0jwvRkIPHLCwoOk0JC-01c3oP1bXTXB7zugyRW5ijxYlKTyQndXyTZ1h6M75fCqEGUySou8yOJ5C/pub?gid=0&single=true&output=csv';
+    if (SHEET_CSV_URL && !SHEET_CSV_URL.includes('REPLACE_WITH')) {
+      try {
+        const response = await fetch(SHEET_CSV_URL);
+        if (response.ok) {
+          const csvData = await response.text();
+          const sheetProducts = csvToArray(csvData);
+          sheetProducts.forEach(product => {
+            if (product.name && product.price) {
+              allProducts.push({
+                id: product.id || 'sheet_' + Date.now() + Math.random(),
+                source: 'Google Sheets',
+                ...product
+              });
+            }
+          });
+        }
+      } catch (error) {
+        console.warn('Google Sheets products load failed:', error);
+      }
+    }
+    
+    if (allProducts.length === 0) {
       document.getElementById('productsList').innerHTML = '<h3>Products</h3><p>No products found.</p>';
       return;
     }
     
-    document.getElementById('productsList').innerHTML = '<h3>Products (' + products.length + ')</h3>' + products.map(p => `
+    document.getElementById('productsList').innerHTML = '<h3>Products (' + allProducts.length + ')</h3>' + allProducts.map(p => `
       <div class="item-card">
         <img src="${p.image || 'https://via.placeholder.com/80'}" alt="${p.name}">
         <div class="item-info">
           <h4>${p.name}</h4>
-          <p>₦${p.price?.toLocaleString()}</p>
+          <p>₦${parseInt(p.price || 0).toLocaleString()}</p>
           <span class="category">${p.category}</span>
+          <span style="background: ${p.source === 'Firebase' ? '#10b981' : '#3b82f6'}; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; margin-left: 0.5rem;">${p.source}</span>
         </div>
-        <button onclick="deleteProduct('${p.id}')" class="btn" style="background: #ef4444; color: white;">Delete</button>
+        ${p.source === 'Firebase' ? `<button onclick="deleteProduct('${p.id}')" class="btn" style="background: #ef4444; color: white;">Delete</button>` : '<span style="color: #6b7280; font-size: 0.875rem;">Read-only</span>'}
       </div>
     `).join('');
   } catch (error) {
     document.getElementById('productsList').innerHTML = '<h3>Products</h3><p>Error loading products: ' + error.message + '</p>';
   }
+}
+
+// CSV parser for admin panel
+function csvToArray(csv) {
+  const lines = csv.trim().split('\n');
+  const headers = lines.shift().split(',').map(h => h.trim().replace(/"/g, ''));
+  
+  return lines.map(line => {
+    const cols = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        cols.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    cols.push(current.trim());
+    
+    const obj = {};
+    headers.forEach((h, i) => {
+      obj[h] = (cols[i] || '').replace(/"/g, '');
+    });
+    return obj;
+  });
 }
 
 async function loadPosts() {
@@ -407,24 +471,70 @@ async function loadUsers() {
   try {
     document.getElementById('usersList').innerHTML = '<p>Loading users...</p>';
     
-    const snapshot = await window.db.collection('users').get();
-    const users = [];
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      users.push({id: doc.id, ...data});
-    });
+    let allUsers = [];
     
-    if (users.length === 0) {
-      document.getElementById('usersList').innerHTML = '<p>No users found.</p>';
+    // Try to load from Firebase Auth users collection
+    try {
+      const snapshot = await window.db.collection('users').get();
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        allUsers.push({id: doc.id, source: 'Firebase Auth', ...data});
+      });
+    } catch (error) {
+      console.warn('Firebase users load failed:', error);
+    }
+    
+    // Try to load from newsletter subscribers
+    try {
+      const newsletterSnapshot = await window.db.collection('newsletter').get();
+      newsletterSnapshot.forEach(doc => {
+        const data = doc.data();
+        allUsers.push({
+          id: doc.id,
+          source: 'Newsletter',
+          email: data.email,
+          name: 'Newsletter Subscriber',
+          signupDate: data.subscribedAt
+        });
+      });
+    } catch (error) {
+      console.warn('Newsletter users load failed:', error);
+    }
+    
+    // Try to load from subscribers collection
+    try {
+      const subscribersSnapshot = await window.db.collection('subscribers').get();
+      subscribersSnapshot.forEach(doc => {
+        const data = doc.data();
+        allUsers.push({
+          id: doc.id,
+          source: 'Subscribers',
+          email: data.email,
+          name: 'Subscriber',
+          signupDate: data.subscribedAt
+        });
+      });
+    } catch (error) {
+      console.warn('Subscribers load failed:', error);
+    }
+    
+    if (allUsers.length === 0) {
+      document.getElementById('usersList').innerHTML = '<p>No users found. Users will appear here when they sign up or subscribe to the newsletter.</p>';
       return;
     }
     
-    document.getElementById('usersList').innerHTML = '<h3>Registered Users (' + users.length + ')</h3>' + users.map(u => `
+    // Remove duplicates based on email
+    const uniqueUsers = allUsers.filter((user, index, self) => 
+      index === self.findIndex(u => u.email === user.email)
+    );
+    
+    document.getElementById('usersList').innerHTML = '<h3>Registered Users (' + uniqueUsers.length + ')</h3>' + uniqueUsers.map(u => `
       <div class="item-card">
         <div class="item-info">
           <h4>${u.name || 'Unknown User'}</h4>
           <p>${u.email || 'No email'}</p>
-          <span class="category">Joined: ${new Date(u.signupDate).toLocaleDateString()}</span>
+          <span class="category">Source: ${u.source}</span>
+          <span class="category" style="margin-left: 0.5rem;">Joined: ${u.signupDate ? new Date(u.signupDate).toLocaleDateString() : 'Unknown'}</span>
         </div>
       </div>
     `).join('');

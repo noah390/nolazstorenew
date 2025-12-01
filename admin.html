@@ -233,35 +233,75 @@ function showBlogForm() {
 
 async function saveProduct(e) {
   e.preventDefault();
+  
+  // Disable button to prevent double submission
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  const originalText = submitBtn.textContent;
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Saving...';
+  
   try {
+    // Validate required fields
+    const name = document.getElementById('productName').value.trim();
+    const price = document.getElementById('productPrice').value;
+    
+    if (!name || !price) {
+      alert('Please fill in product name and price.');
+      return;
+    }
+    
     const product = {
-      name: document.getElementById('productName').value,
-      price: parseInt(document.getElementById('productPrice').value),
-      description: document.getElementById('productDescription').value,
+      name: name,
+      price: parseInt(price),
+      description: document.getElementById('productDescription').value.trim(),
       category: document.getElementById('productCategory').value,
-      image: document.getElementById('productImage').value || 'https://via.placeholder.com/300x200',
+      image: document.getElementById('productImage').value.trim() || 'https://via.placeholder.com/300x200',
       status: 'active',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     
+    console.log('Saving product:', product);
     await db.collection('products').add(product);
     alert('Product saved successfully!');
     e.target.reset();
     loadProducts();
   } catch (error) {
+    console.error('Error saving product:', error);
     alert('Error saving product: ' + error.message);
+  } finally {
+    // Re-enable button
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalText;
   }
 }
 
 async function savePost(e) {
   e.preventDefault();
+  
+  // Disable button to prevent double submission
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  const originalText = submitBtn.textContent;
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Publishing...';
+  
   try {
+    // Validate required fields
+    const title = document.getElementById('postTitle').value.trim();
+    const excerpt = document.getElementById('postExcerpt').value.trim();
+    const content = document.getElementById('postContent').value.trim();
+    const image = document.getElementById('postImage').value.trim();
+    
+    if (!title || !excerpt || !content || !image) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+    
     const post = {
-      title: document.getElementById('postTitle').value,
-      excerpt: document.getElementById('postExcerpt').value,
-      content: document.getElementById('postContent').value,
+      title: title,
+      excerpt: excerpt,
+      content: content,
       category: document.getElementById('postCategory').value,
-      image: document.getElementById('postImage').value,
+      image: image,
       readTime: document.getElementById('readTime').value || '5 min read',
       featured: document.getElementById('featured').checked,
       author: 'Nolaz Team',
@@ -269,12 +309,18 @@ async function savePost(e) {
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     
+    console.log('Saving post:', post);
     await db.collection('blogPosts').add(post);
     alert('Post published successfully!');
     e.target.reset();
     loadPosts();
   } catch (error) {
+    console.error('Error saving post:', error);
     alert('Error saving post: ' + error.message);
+  } finally {
+    // Re-enable button
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalText;
   }
 }
 

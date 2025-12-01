@@ -2986,7 +2986,6 @@ img {
   }
   
   .header-actions {
-<<<<<<< HEAD
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
@@ -2994,11 +2993,8 @@ img {
   }
   
   #userGreeting {
-    display: none !important;
-=======
-    gap: 8px;
-    flex-wrap: wrap;
->>>>>>> b8b7aab8030d883b3943e9dfd8361ccc59018302
+    font-size: 12px;
+    margin-right: 8px;
   }
   
   .search-container {

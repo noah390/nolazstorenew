@@ -344,24 +344,43 @@ if (document.readyState === 'loading') {
 
 // Fallback cart button handler and count updater
 document.addEventListener('DOMContentLoaded', function() {
-  const cartBtn = document.getElementById('cartBtn');
-  if (cartBtn && !cartBtn.hasAttribute('data-cart-initialized')) {
-    cartBtn.setAttribute('data-cart-initialized', 'true');
-    cartBtn.addEventListener('click', function() {
-      if (cart) {
-        cart.showCart();
-      } else {
-        console.error('Cart not initialized');
-        alert('Cart is loading, please try again.');
-      }
-    });
-  }
-  
-  // Force update cart count on page load
-  if (cart) {
-    cart.updateCartCount();
-  }
+  // Wait a bit for cart to initialize
+  setTimeout(() => {
+    const cartBtn = document.getElementById('cartBtn');
+    if (cartBtn && !cartBtn.hasAttribute('data-cart-initialized')) {
+      cartBtn.setAttribute('data-cart-initialized', 'true');
+      cartBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Cart button clicked');
+        if (window.cart) {
+          window.cart.showCart();
+        } else {
+          console.error('Cart not initialized');
+          alert('Cart is loading, please try again.');
+        }
+      });
+      console.log('Cart button event listener added');
+    }
+    
+    // Force update cart count on page load
+    if (window.cart) {
+      window.cart.updateCartCount();
+    }
+  }, 500);
 });
+
+// Additional fallback for cart button
+setInterval(() => {
+  const cartBtn = document.getElementById('cartBtn');
+  if (cartBtn && !cartBtn.hasAttribute('data-cart-initialized') && window.cart) {
+    cartBtn.setAttribute('data-cart-initialized', 'true');
+    cartBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.cart.showCart();
+    });
+    console.log('Cart button initialized via fallback');
+  }
+}, 1000);
 
 // Global function to add to cart (called from product cards)
 function addToCart(productId) {

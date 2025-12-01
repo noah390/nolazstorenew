@@ -277,6 +277,32 @@ function getSampleProducts() {
   ];
 }
 
+// Global functions for cart and product details
+window.addToCart = function(productId) {
+  console.log('Adding to cart:', productId);
+  if (window.cart) {
+    const product = window.productsData?.find(p => p.id === productId);
+    if (product) {
+      window.cart.addItem(product);
+    } else {
+      alert('Product not found. Please try again.');
+    }
+  } else {
+    alert('Cart is loading, please try again.');
+  }
+};
+
+window.showProductDetails = function(productId) {
+  const product = window.productsData?.find(p => p.id === productId);
+  if (!product) {
+    alert('Product details not available.');
+    return;
+  }
+  
+  const details = `Product Details:\n\nName: ${product.name}\nPrice: ₦${parseInt(product.price || 0).toLocaleString()}\nDescription: ${product.description || 'No description'}\nCategory: ${product.category || 'Uncategorized'}\nProduct ID: ${product.id}\n\nContact us on WhatsApp to place your order!`;
+  alert(details);
+};
+
 // Initialize the store with both Firebase and Google Sheets
 async function init() {
   const productsEl = document.getElementById('products');

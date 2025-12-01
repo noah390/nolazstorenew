@@ -2927,6 +2927,28 @@ img {
   .btn:active {
     transform: scale(0.98);
   }
+  
+  /* Improve mobile button responsiveness */
+  .btn-buy, .btn-info, .cart-btn {
+    min-height: 48px;
+    min-width: 48px;
+    padding: 12px 16px;
+    font-size: 16px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+  }
+  
+  .actions {
+    gap: 12px;
+  }
+  
+  .actions button, .actions a {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 /* Mobile Accessibility */
@@ -4145,12 +4167,26 @@ img {
 /* Payment Form Modal Positioning */
 #paymentFormModal {
   z-index: 1001;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 #paymentFormModal .modal-content {
   max-width: 500px;
-  margin: 3% auto;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
   position: relative;
+  margin: 0;
 }
 
 #paymentFormModal .flw-form-header {
@@ -4168,10 +4204,26 @@ img {
   cursor: pointer;
   opacity: 0.8;
   transition: opacity 0.3s ease;
+  z-index: 10;
 }
 
 #paymentFormModal .flw-form-header .close:hover {
   opacity: 1;
+}
+
+@media (max-width: 768px) {
+  #paymentFormModal {
+    padding: 10px;
+  }
+  
+  #paymentFormModal .modal-content {
+    max-height: 95vh;
+  }
+  
+  #paymentFormModal .flw-form-header .close {
+    right: 15px;
+    font-size: 28px;
+  }
 }
 
 /* Form Input Focus Effects */

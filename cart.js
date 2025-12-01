@@ -21,11 +21,19 @@ class ShoppingCart {
   }
 
   bindEvents() {
-    // Cart button
+    // Cart button with mobile support
     const cartBtn = document.getElementById('cartBtn');
     if (cartBtn) {
-      cartBtn.addEventListener('click', () => this.showCart());
-      console.log('Cart button event listener added');
+      // Add both click and touchend for mobile
+      cartBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.showCart();
+      });
+      cartBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        this.showCart();
+      });
+      console.log('Cart button event listeners added');
     } else {
       console.error('Cart button not found');
     }
@@ -220,6 +228,13 @@ Please confirm my order and provide payment details.`;
 
   showPaymentForm() {
     const total = this.getTotal();
+    
+    // Remove any existing payment form
+    const existingModal = document.getElementById('paymentFormModal');
+    if (existingModal) {
+      existingModal.remove();
+    }
+    
     const formHTML = `
       <div id="paymentFormModal" class="modal" style="display: block;">
         <div class="modal-content flw-payment-form">
@@ -263,12 +278,19 @@ Please confirm my order and provide payment details.`;
     document.body.insertAdjacentHTML('beforeend', formHTML);
     document.body.style.overflow = 'hidden';
     
+    // Hide cart modal
+    this.hideCart();
+    
     // Bind form submit event
-    const form = document.getElementById('customerInfoForm');
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      this.processPayment();
-    });
+    setTimeout(() => {
+      const form = document.getElementById('customerInfoForm');
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.processPayment();
+        });
+      }
+    }, 100);
   }
 
   hidePaymentForm() {

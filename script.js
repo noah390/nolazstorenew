@@ -88,10 +88,10 @@ function createProductCard(product) {
       <p class="desc">${product.description || 'No description available'}</p>
       <div class="price">${price}</div>
       <div class="actions">
-        <button class="btn-buy" onclick="addToCart('${product.id}')">
+        <button class="btn-buy" onclick="addToCart('${product.id}')" ontouchend="addToCart('${product.id}')">
           Add to Cart
         </button>
-        <a class="btn-info" href="#" onclick="showProductDetails('${product.id}')">
+        <a class="btn-info" href="#" onclick="showProductDetails('${product.id}')" ontouchend="showProductDetails('${product.id}')">
           Details
         </a>
       </div>

@@ -166,26 +166,41 @@
 <script>
 const ADMIN_PASSWORD = 'Admin54321';
 
+// Wait for Firebase to initialize
+let isInitialized = false;
+
 firebase.auth().onAuthStateChanged(async (user) => {
-  if (!user) {
-    try {
-      await firebase.auth().signInAnonymously();
-    } catch (error) {
-      console.log('Anonymous auth failed:', error);
+  if (!isInitialized) {
+    isInitialized = true;
+    if (!user) {
+      try {
+        await firebase.auth().signInAnonymously();
+      } catch (error) {
+        console.log('Anonymous auth failed:', error);
+      }
     }
-  }
-  if (localStorage.getItem('nolazAdminLoggedIn') === 'true') {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('adminPanel').style.display = 'block';
+    if (localStorage.getItem('nolazAdminLoggedIn') === 'true') {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminPanel').style.display = 'block';
+    }
   }
 });
 
 async function login() {
   const password = document.getElementById('adminPassword').value;
   if (password === ADMIN_PASSWORD) {
-    localStorage.setItem('nolazAdminLoggedIn', 'true');
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('adminPanel').style.display = 'block';
+    try {
+      // Ensure we're authenticated
+      if (!firebase.auth().currentUser) {
+        await firebase.auth().signInAnonymously();
+      }
+      localStorage.setItem('nolazAdminLoggedIn', 'true');
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminPanel').style.display = 'block';
+    } catch (error) {
+      console.error('Auth error:', error);
+      alert('Authentication failed. Please try again.');
+    }
   } else {
     alert('Invalid password');
   }

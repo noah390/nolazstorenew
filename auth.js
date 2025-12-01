@@ -38,27 +38,27 @@ class AuthGuard {
 
   showAuthScreen() {
     document.body.innerHTML = `
-      <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-family: Arial, sans-serif;">
-        <div style="text-align: center; background: white; padding: 2rem; border-radius: 1rem; box-shadow: 0 20px 40px rgba(0,0,0,0.1); max-width: 400px; width: 90%;">
-          <h1 style="margin: 0 0 1rem; color: #1f2937;">Welcome to Nolaz Store</h1>
-          <p style="margin: 0 0 2rem; color: #6b7280;">Please sign in to access our fashion collection</p>
+      <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-family: Arial, sans-serif; padding: 1rem;">
+        <div style="text-align: center; background: white; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 20px 40px rgba(0,0,0,0.1); max-width: 400px; width: 100%; margin: 0 auto;">
+          <h1 style="margin: 0 0 0.5rem; color: #1f2937; font-size: 1.5rem;">Welcome to Nolaz Store</h1>
+          <p style="margin: 0 0 1.5rem; color: #6b7280; font-size: 0.9rem;">Please sign in to access our fashion collection</p>
           
-          <div id="authTabs" style="display: flex; margin-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb;">
-            <button onclick="authGuard.switchTab('signup')" id="signupTab" style="flex: 1; padding: 0.75rem; border: none; background: none; cursor: pointer; font-weight: 600; color: #667eea; border-bottom: 2px solid #667eea;">Sign Up</button>
-            <button onclick="authGuard.switchTab('login')" id="loginTab" style="flex: 1; padding: 0.75rem; border: none; background: none; cursor: pointer; font-weight: 600; color: #6b7280;">Login</button>
+          <div id="authTabs" style="display: flex; margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb;">
+            <button onclick="authGuard.switchTab('signup')" id="signupTab" style="flex: 1; padding: 0.75rem; border: none; background: none; cursor: pointer; font-weight: 600; color: #667eea; border-bottom: 2px solid #667eea; font-size: 0.9rem;">Sign Up</button>
+            <button onclick="authGuard.switchTab('login')" id="loginTab" style="flex: 1; padding: 0.75rem; border: none; background: none; cursor: pointer; font-weight: 600; color: #6b7280; font-size: 0.9rem;">Login</button>
           </div>
           
           <form id="signupForm">
-            <input type="text" id="signupName" placeholder="Full Name" required style="width: 100%; padding: 0.75rem; margin-bottom: 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; box-sizing: border-box;">
-            <input type="email" id="signupEmail" placeholder="Email" required style="width: 100%; padding: 0.75rem; margin-bottom: 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; box-sizing: border-box;">
-            <input type="password" id="signupPassword" placeholder="Password (min 6 characters)" minlength="6" required style="width: 100%; padding: 0.75rem; margin-bottom: 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; box-sizing: border-box;">
-            <button type="submit" style="width: 100%; background: #667eea; color: white; border: none; padding: 0.75rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer;">Create Account</button>
+            <input type="text" id="signupName" placeholder="Full Name" required style="width: 100%; padding: 0.75rem; margin-bottom: 0.75rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; box-sizing: border-box; font-size: 1rem;">
+            <input type="email" id="signupEmail" placeholder="Email" required style="width: 100%; padding: 0.75rem; margin-bottom: 0.75rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; box-sizing: border-box; font-size: 1rem;">
+            <input type="password" id="signupPassword" placeholder="Password (min 6 characters)" minlength="6" required style="width: 100%; padding: 0.75rem; margin-bottom: 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; box-sizing: border-box; font-size: 1rem;">
+            <button type="submit" style="width: 100%; background: #667eea; color: white; border: none; padding: 0.75rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; font-size: 1rem;">Create Account</button>
           </form>
           
           <form id="loginForm" style="display: none;">
-            <input type="email" id="loginEmail" placeholder="Email" required style="width: 100%; padding: 0.75rem; margin-bottom: 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; box-sizing: border-box;">
-            <input type="password" id="loginPassword" placeholder="Password" required style="width: 100%; padding: 0.75rem; margin-bottom: 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; box-sizing: border-box;">
-            <button type="submit" style="width: 100%; background: #667eea; color: white; border: none; padding: 0.75rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer;">Login</button>
+            <input type="email" id="loginEmail" placeholder="Email" required style="width: 100%; padding: 0.75rem; margin-bottom: 0.75rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; box-sizing: border-box; font-size: 1rem;">
+            <input type="password" id="loginPassword" placeholder="Password" required style="width: 100%; padding: 0.75rem; margin-bottom: 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; box-sizing: border-box; font-size: 1rem;">
+            <button type="submit" style="width: 100%; background: #667eea; color: white; border: none; padding: 0.75rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; font-size: 1rem;">Login</button>
           </form>
         </div>
       </div>
@@ -172,6 +172,8 @@ class AuthGuard {
       logoutBtn.style.marginLeft = '10px';
       logoutBtn.style.background = '#ef4444';
       logoutBtn.style.color = 'white';
+      logoutBtn.style.padding = '0.5rem 0.75rem';
+      logoutBtn.style.fontSize = '0.875rem';
       logoutBtn.textContent = 'Logout';
       logoutBtn.onclick = () => this.logout();
       headerActions.appendChild(logoutBtn);

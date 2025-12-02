@@ -344,7 +344,14 @@ Please confirm my order and provide payment details.`;
     
     const total = this.getTotal();
     this.hidePaymentForm();
-    makePayment(total, email, name, phone);
+    
+    // Check if makePayment function exists
+    if (typeof makePayment === 'function') {
+      makePayment(total, email, name, phone);
+    } else {
+      alert('Payment system is loading. Please try again in a moment.');
+      console.error('makePayment function not found');
+    }
   }
 
   showAddedNotification(productName) {

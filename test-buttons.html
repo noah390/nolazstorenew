@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Test - Nolaz Store</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .test-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-btn {
+            margin: 10px;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .test-btn:hover {
+            background: #0056b3;
+        }
+        #console-output {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Nolaz Store - Button Functionality Test</h1>
+        
+        <div class="test-section">
+            <h2>Cart Functions</h2>
+            <button class="test-btn" onclick="testAddToCart()">Test Add to Cart</button>
+            <button class="test-btn" onclick="testShowCart()">Test Show Cart</button>
+            <button class="test-btn" onclick="testPayment()">Test Payment</button>
+            <button class="test-btn" onclick="testCheckout()">Test WhatsApp Checkout</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>Cart Modal (will appear when you click Show Cart)</h2>
+            <div id="cartModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Shopping Cart</h3>
+                        <span class="close" onclick="closeCart()">&times;</span>
+                    </div>
+                    <div id="cartItems">
+                        <p>Test cart items will appear here</p>
+                    </div>
+                    <div class="cart-footer">
+                        <div class="cart-total">
+                            <strong>Total: ₦<span id="cartTotal">5000</span></strong>
+                        </div>
+                        <button id="payNowBtn" class="btn btn-primary" style="margin-bottom: 8px;">Pay Now</button>
+                        <button id="checkoutBtn" class="btn btn-success">Checkout via WhatsApp</button>
+                        <button id="clearCartBtn" class="btn" style="background: #ef4444;">Clear Cart</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Console Output</h2>
+            <div id="console-output"></div>
+            <button class="test-btn" onclick="clearConsole()">Clear Console</button>
+        </div>
+    </div>
+
+    <!-- Include all necessary scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="https://checkout.flutterwave.com/v3.js"></script>
+    <script src="flutterwave-payment.js"></script>
+    <script src="cart.js"></script>
+
+    <script>
+        // Console output capture
+        const consoleOutput = document.getElementById('console-output');
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            consoleOutput.textContent += '[LOG] ' + args.join(' ') + '\n';
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            consoleOutput.textContent += '[ERROR] ' + args.join(' ') + '\n';
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        };
+
+        // Test functions
+        function testAddToCart() {
+            console.log('Testing Add to Cart...');
+            const testProduct = {
+                id: 'test-1',
+                name: 'Test Product',
+                price: 5000,
+                image: 'https://via.placeholder.com/100x100',
+                description: 'Test product for cart functionality'
+            };
+            
+            if (window.cart) {
+                window.cart.addItem(testProduct);
+                console.log('✓ Product added to cart');
+            } else {
+                console.error('✗ Cart not initialized');
+            }
+        }
+
+        function testShowCart() {
+            console.log('Testing Show Cart...');
+            if (window.cart) {
+                window.cart.showCart();
+                console.log('✓ Cart modal should be visible');
+            } else {
+                console.error('✗ Cart not initialized');
+                // Fallback - show modal manually
+                document.getElementById('cartModal').style.display = 'block';
+            }
+        }
+
+        function testPayment() {
+            console.log('Testing Payment...');
+            if (typeof makePayment === 'function') {
+                makePayment(5000, 'test@example.com', 'Test User', '08012345678');
+                console.log('✓ Payment function called');
+            } else {
+                console.error('✗ makePayment function not found');
+            }
+        }
+
+        function testCheckout() {
+            console.log('Testing WhatsApp Checkout...');
+            if (window.cart) {
+                window.cart.checkout();
+                console.log('✓ WhatsApp checkout initiated');
+            } else {
+                console.error('✗ Cart not initialized');
+                // Fallback
+                const message = "Hello! I'd like to place a test order.";
+                const whatsappUrl = `https://wa.me/2349046456469?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+                console.log('✓ Fallback WhatsApp link opened');
+            }
+        }
+
+        function closeCart() {
+            console.log('Closing cart...');
+            document.getElementById('cartModal').style.display = 'none';
+        }
+
+        function clearConsole() {
+            consoleOutput.textContent = '';
+        }
+
+        // Initialize when page loads
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, checking components...');
+            
+            setTimeout(() => {
+                if (window.cart) {
+                    console.log('✓ Cart initialized successfully');
+                } else {
+                    console.error('✗ Cart not initialized after 2 seconds');
+                }
+                
+                if (typeof makePayment === 'function') {
+                    console.log('✓ Payment function available');
+                } else {
+                    console.error('✗ Payment function not available');
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

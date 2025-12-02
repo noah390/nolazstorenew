@@ -234,14 +234,28 @@ function showShopSlide(n) {
 
 window.addEventListener('DOMContentLoaded', () => {
   initializeShopSlider();
-  // Initialize main script functionality
-  if (typeof init === 'function') {
-    init().then(() => {
-      if (typeof setupFilters === 'function') {
-        setupFilters();
+  
+  // Initialize products loading
+  setTimeout(() => {
+    if (typeof init === 'function') {
+      console.log('Initializing products...');
+      init().then(() => {
+        console.log('Products initialized');
+        if (typeof setupFilters === 'function') {
+          setupFilters();
+        }
+      }).catch(error => {
+        console.error('Error initializing products:', error);
+      });
+    } else {
+      console.error('init function not found');
+      // Fallback - show sample products
+      const productsEl = document.getElementById('products');
+      if (productsEl) {
+        productsEl.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 48px;">Loading products... Please refresh if products don\'t appear.</p>';
       }
-    });
-  }
+    }
+  }, 1000);
 });
 </script>
 </body>

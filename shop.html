@@ -232,30 +232,83 @@ function showShopSlide(n) {
   }
 }
 
+// Sample products for immediate display
+const sampleProducts = [
+  {id: '1', name: 'Premium Cotton T-Shirt', price: '15000', description: 'Comfortable premium cotton t-shirt', category: 'clothing', image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=300&fit=crop'},
+  {id: '2', name: 'Gold Chain Necklace', price: '45000', description: 'Elegant gold-plated chain necklace', category: 'jewelry', image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=300&fit=crop'},
+  {id: '3', name: 'Designer Handbag', price: '40000', description: 'Stylish designer handbag', category: 'bags', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=300&fit=crop'},
+  {id: '4', name: 'Running Sneakers', price: '35000', description: 'Comfortable running sneakers', category: 'shoes', image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=300&fit=crop'},
+  {id: '5', name: 'Wireless Headphones', price: '55000', description: 'High-quality wireless headphones', category: 'electronics', image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400&h=300&fit=crop'},
+  {id: '6', name: 'Casual Denim Jeans', price: '25000', description: 'Classic blue denim jeans', category: 'clothing', image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&h=300&fit=crop'}
+];
+
+function createProductCard(product) {
+  return `
+    <div class="card">
+      <div class="card-image">
+        <img src="${product.image}" alt="${product.name}" loading="lazy">
+        <div class="card-badge">${product.category}</div>
+      </div>
+      <div class="card-content">
+        <h3>${product.name}</h3>
+        <p class="desc">${product.description}</p>
+        <div class="price">₦${parseInt(product.price).toLocaleString()}</div>
+        <div class="actions">
+          <button class="btn-buy" onclick="addToCart('${product.id}')">Add to Cart</button>
+          <a class="btn-info" href="#" onclick="showProductDetails('${product.id}')">Details</a>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function showSampleProducts() {
+  const productsEl = document.getElementById('products');
+  if (productsEl) {
+    window.productsData = sampleProducts;
+    productsEl.innerHTML = sampleProducts.map(createProductCard).join('');
+    console.log('Sample products displayed');
+  }
+}
+
+// Global functions for cart and product details
+window.addToCart = function(productId) {
+  if (window.cart) {
+    const product = window.productsData?.find(p => p.id === productId);
+    if (product) {
+      window.cart.addItem(product);
+    } else {
+      alert('Product not found');
+    }
+  } else {
+    alert('Cart is loading, please try again');
+  }
+};
+
+window.showProductDetails = function(productId) {
+  const product = window.productsData?.find(p => p.id === productId);
+  if (product) {
+    alert(`Product: ${product.name}\nPrice: ₦${parseInt(product.price).toLocaleString()}\nDescription: ${product.description}`);
+  }
+};
+
 window.addEventListener('DOMContentLoaded', () => {
   initializeShopSlider();
   
-  // Initialize products loading
+  // Show sample products immediately
+  showSampleProducts();
+  
+  // Try to load from script.js after delay
   setTimeout(() => {
     if (typeof init === 'function') {
-      console.log('Initializing products...');
+      console.log('Trying to load from script.js...');
       init().then(() => {
-        console.log('Products initialized');
-        if (typeof setupFilters === 'function') {
-          setupFilters();
-        }
+        console.log('Script.js products loaded');
       }).catch(error => {
-        console.error('Error initializing products:', error);
+        console.error('Script.js failed, keeping sample products:', error);
       });
-    } else {
-      console.error('init function not found');
-      // Fallback - show sample products
-      const productsEl = document.getElementById('products');
-      if (productsEl) {
-        productsEl.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 48px;">Loading products... Please refresh if products don\'t appear.</p>';
-      }
     }
-  }, 1000);
+  }, 2000);
 });
 </script>
 </body>

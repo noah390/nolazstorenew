@@ -264,13 +264,27 @@ async function loadBlogPreview() {
 // Wait for Firebase to initialize before loading content
 if (window.firebase) {
   firebase.auth().onAuthStateChanged(() => {
-    loadFeaturedProducts();
+    // Only load featured products if we're on home page and main script hasn't loaded them
+    if (window.location.pathname.includes('home.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/')) {
+      setTimeout(() => {
+        if (!window.productsData) {
+          loadFeaturedProducts();
+        }
+      }, 1000);
+    }
     loadBlogPreview();
   });
 } else {
   // Fallback if Firebase not available
   window.addEventListener('DOMContentLoaded', () => {
-    loadFeaturedProducts();
+    // Only load featured products if we're on home page and main script hasn't loaded them
+    if (window.location.pathname.includes('home.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/')) {
+      setTimeout(() => {
+        if (!window.productsData) {
+          loadFeaturedProducts();
+        }
+      }, 1000);
+    }
     setTimeout(loadBlogPreview, 1000); // Give Firebase time to load
   });
 }

@@ -436,41 +436,41 @@ setInterval(() => {
 }, 1000);
 
 // Global function to add to cart (called from product cards)
-function addToCart(productId) {
-  console.log('Adding to cart:', productId);
-  const product = window.productsData?.find(p => p.id === productId);
-  if (product && window.cart) {
-    window.cart.addItem(product);
-  } else {
-    console.error('Product not found or cart not ready:', productId);
-    alert('Product not found. Please try again.');
-  }
+if (typeof window.addToCart === 'undefined') {
+  window.addToCart = function(productId) {
+    console.log('Cart.js addToCart called for:', productId);
+    const product = window.productsData?.find(p => p.id === productId);
+    if (product && window.cart) {
+      window.cart.addItem(product);
+    } else {
+      console.error('Product not found or cart not ready:', productId);
+      alert('Product not found. Please try again.');
+    }
+  };
 }
 
 // Global function to close cart
-function closeCart() {
-  if (window.cart) {
-    window.cart.hideCart();
-  }
+if (typeof window.closeCart === 'undefined') {
+  window.closeCart = function() {
+    if (window.cart) {
+      window.cart.hideCart();
+    }
+  };
 }
 
-// Ensure functions are globally available
-window.addToCart = addToCart;
-window.closeCart = closeCart;
-
 // Global function to show product details
-function showProductDetails(productId) {
-  console.log('Showing details for product:', productId);
-  console.log('Available products:', window.productsData);
-  
-  const product = window.productsData?.find(p => p.id === productId);
-  if (!product) {
-    console.error('Product not found:', productId);
-    alert('Product details not available.');
-    return;
-  }
-  
-  const details = `Product Details:
+if (typeof window.showProductDetails === 'undefined') {
+  window.showProductDetails = function(productId) {
+    console.log('Cart.js showProductDetails called for:', productId);
+    
+    const product = window.productsData?.find(p => p.id === productId);
+    if (!product) {
+      console.error('Product not found:', productId);
+      alert('Product details not available.');
+      return;
+    }
+    
+    const details = `Product Details:
 
 Name: ${product.name}
 Price: ₦${parseInt(product.price || 0).toLocaleString()}
@@ -479,9 +479,7 @@ Category: ${product.category || 'Uncategorized'}
 Product ID: ${product.id}
 
 Contact us on WhatsApp to place your order!`;
-  
-  alert(details);
+    
+    alert(details);
+  };
 }
-
-// Ensure function is globally available
-window.showProductDetails = showProductDetails;

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Loading Test - Nolaz Store</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .product-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+        .source-firebase { border-left: 4px solid #ff6b35; }
+        .source-sheets { border-left: 4px solid #4285f4; }
+        .source-sample { border-left: 4px solid #34a853; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .status.loading { background: #fff3cd; color: #856404; }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Nolaz Store - Product Loading Test</h1>
+    
+    <div class="test-section">
+        <h2>Loading Status</h2>
+        <div id="loadingStatus" class="status loading">Initializing...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Firebase Products</h2>
+        <div id="firebaseProducts">Loading...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Google Sheets Products</h2>
+        <div id="sheetsProducts">Loading...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Sample Products</h2>
+        <div id="sampleProducts">Loading...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>All Products Combined</h2>
+        <div id="allProducts">Loading...</div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTU0jwvRkIPHLCwoOk0JC-01c3oP1bXTXB7zugyRW5ijxYlKTyQndXyTZ1h6M75fCqEGUySou8yOJ5C/pub?gid=0&single=true&output=csv';
+
+        function updateStatus(message, type = 'loading') {
+            const statusEl = document.getElementById('loadingStatus');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+        }
+
+        function displayProducts(containerId, products, source) {
+            const container = document.getElementById(containerId);
+            if (products.length === 0) {
+                container.innerHTML = `<p>No ${source} products found</p>`;
+                return;
+            }
+
+            const html = products.map(product => `
+                <div class="product-item source-${source.toLowerCase().replace(' ', '')}">
+                    <strong>${product.name}</strong> - ₦${parseInt(product.price || 0).toLocaleString()}<br>
+                    <small>Source: ${product.source || source} | Category: ${product.category || 'N/A'} | ID: ${product.id}</small><br>
+                    <em>${product.description || 'No description'}</em>
+                </div>
+            `).join('');
+            
+            container.innerHTML = `<p><strong>${products.length} products found:</strong></p>${html}`;
+        }
+
+        function csvToArray(csv) {
+            const lines = csv.trim().split('\n');
+            const headers = lines.shift().split(',').map(h => h.trim().replace(/"/g, ''));
+            
+            return lines.map(line => {
+                const cols = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        cols.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                cols.push(current.trim());
+                
+                const obj = {};
+                headers.forEach((h, i) => {
+                    obj[h] = (cols[i] || '').replace(/"/g, '');
+                });
+                return obj;
+            });
+        }
+
+        function getSampleProducts() {
+            return [
+                {
+                    id: '1',
+                    name: 'Premium Cotton T-Shirt',
+                    price: '15000',
+                    description: 'Comfortable premium cotton t-shirt perfect for everyday wear',
+                    category: 'clothing',
+                    source: 'Sample'
+                },
+                {
+                    id: '2',
+                    name: 'Gold Chain Necklace',
+                    price: '45000',
+                    description: 'Elegant gold-plated chain necklace for special occasions',
+                    category: 'jewelry',
+                    source: 'Sample'
+                },
+                {
+                    id: '3',
+                    name: 'Designer Handbag',
+                    price: '40000',
+                    description: 'Stylish designer handbag made from premium materials',
+                    category: 'bags',
+                    source: 'Sample'
+                }
+            ];
+        }
+
+        async function testProductLoading() {
+            updateStatus('Starting product loading test...', 'loading');
+
+            let firebaseProducts = [];
+            let sheetsProducts = [];
+            let sampleProducts = getSampleProducts();
+            let allProducts = [];
+
+            // Test Firebase
+            try {
+                updateStatus('Testing Firebase connection...', 'loading');
+                if (window.db) {
+                    const firestoreSnapshot = await db.collection('products').get();
+                    firestoreSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (data.name && data.price && data.status !== 'inactive') {
+                            firebaseProducts.push({
+                                id: doc.id,
+                                source: 'Firebase',
+                                ...data
+                            });
+                        }
+                    });
+                    console.log('Firebase products loaded:', firebaseProducts.length);
+                } else {
+                    console.warn('Firebase not available');
+                }
+            } catch (error) {
+                console.error('Firebase error:', error);
+            }
+
+            // Test Google Sheets
+            try {
+                updateStatus('Testing Google Sheets connection...', 'loading');
+                if (SHEET_CSV_URL && !SHEET_CSV_URL.includes('REPLACE_WITH')) {
+                    const response = await fetch(SHEET_CSV_URL);
+                    if (response.ok) {
+                        const csvData = await response.text();
+                        const sheetData = csvToArray(csvData);
+                        
+                        sheetData.forEach(product => {
+                            if (product.name && product.price && (product.status || 'active').toLowerCase() !== 'inactive') {
+                                sheetsProducts.push({
+                                    id: product.id || 'sheet_' + Date.now() + Math.random(),
+                                    source: 'Google Sheets',
+                                    ...product
+                                });
+                            }
+                        });
+                        console.log('Google Sheets products loaded:', sheetsProducts.length);
+                    }
+                }
+            } catch (error) {
+                console.error('Google Sheets error:', error);
+            }
+
+            // Combine all products
+            allProducts = [...firebaseProducts, ...sheetsProducts];
+            
+            // If no products from external sources, use samples
+            if (allProducts.length === 0) {
+                allProducts = sampleProducts;
+                updateStatus('No external products found, using sample products', 'error');
+            } else {
+                updateStatus(`Successfully loaded ${allProducts.length} products from external sources`, 'success');
+            }
+
+            // Display results
+            displayProducts('firebaseProducts', firebaseProducts, 'Firebase');
+            displayProducts('sheetsProducts', sheetsProducts, 'Google Sheets');
+            displayProducts('sampleProducts', sampleProducts, 'Sample');
+            displayProducts('allProducts', allProducts, 'All');
+
+            // Store globally for testing
+            window.testResults = {
+                firebase: firebaseProducts,
+                sheets: sheetsProducts,
+                sample: sampleProducts,
+                all: allProducts
+            };
+
+            console.log('Test results:', window.testResults);
+        }
+
+        // Wait for Firebase to initialize
+        if (window.firebase) {
+            firebase.auth().onAuthStateChanged(() => {
+                testProductLoading();
+            });
+        } else {
+            window.addEventListener('DOMContentLoaded', () => {
+                setTimeout(testProductLoading, 1000);
+            });
+        }
+    </script>
+</body>
+</html>

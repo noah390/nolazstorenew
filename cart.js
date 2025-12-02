@@ -38,11 +38,18 @@ class ShoppingCart {
       console.error('Cart button not found');
     }
 
-    // Modal close
-    const closeBtn = document.querySelector('.modal .close');
-    if (closeBtn) {
-      closeBtn.addEventListener('click', () => this.hideCart());
-    }
+    // Modal close - multiple selectors for better compatibility
+    const closeBtns = document.querySelectorAll('#cartModal .close, .modal .close');
+    closeBtns.forEach(closeBtn => {
+      closeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.hideCart();
+      });
+      closeBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        this.hideCart();
+      });
+    });
 
     // Modal background click
     const modal = document.getElementById('cartModal');
@@ -161,14 +168,14 @@ class ShoppingCart {
           <p>₦${item.price.toLocaleString()}</p>
         </div>
         <div class="quantity-controls">
-          <button onclick="cart.updateQuantity('${item.id}', ${item.quantity - 1})">-</button>
+          <button onclick="window.cart.updateQuantity('${item.id}', ${item.quantity - 1})" ontouchend="window.cart.updateQuantity('${item.id}', ${item.quantity - 1})">-</button>
           <span>${item.quantity}</span>
-          <button onclick="cart.updateQuantity('${item.id}', ${item.quantity + 1})">+</button>
+          <button onclick="window.cart.updateQuantity('${item.id}', ${item.quantity + 1})" ontouchend="window.cart.updateQuantity('${item.id}', ${item.quantity + 1})">+</button>
         </div>
         <div class="item-total">
           ₦${(item.price * item.quantity).toLocaleString()}
         </div>
-        <button class="remove-btn" onclick="cart.removeItem('${item.id}')">&times;</button>
+        <button class="remove-btn" onclick="window.cart.removeItem('${item.id}')" ontouchend="window.cart.removeItem('${item.id}')">&times;</button>
       </div>
     `).join('');
 
@@ -177,13 +184,37 @@ class ShoppingCart {
     if (cartTotalEl) {
       cartTotalEl.textContent = this.getTotal().toLocaleString();
     }
+    
+    // Re-bind close button events after rendering
+    setTimeout(() => this.bindCloseEvents(), 100);
+  }
+  
+  bindCloseEvents() {
+    const closeBtns = document.querySelectorAll('#cartModal .close');
+    closeBtns.forEach(closeBtn => {
+      if (!closeBtn.hasAttribute('data-cart-close-bound')) {
+        closeBtn.setAttribute('data-cart-close-bound', 'true');
+        closeBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.hideCart();
+        });
+        closeBtn.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          this.hideCart();
+        });
+      }
+    });
   }
 
   showCart() {
     const modal = document.getElementById('cartModal');
     if (modal) {
+      this.renderCart(); // Ensure cart is up to date
       modal.style.display = 'block';
       document.body.style.overflow = 'hidden';
+      
+      // Ensure close button works
+      setTimeout(() => this.bindCloseEvents(), 100);
     }
   }
 
@@ -408,16 +439,24 @@ setInterval(() => {
 function addToCart(productId) {
   console.log('Adding to cart:', productId);
   const product = window.productsData?.find(p => p.id === productId);
-  if (product) {
-    cart.addItem(product);
+  if (product && window.cart) {
+    window.cart.addItem(product);
   } else {
-    console.error('Product not found:', productId);
+    console.error('Product not found or cart not ready:', productId);
     alert('Product not found. Please try again.');
   }
 }
 
-// Ensure function is globally available
+// Global function to close cart
+function closeCart() {
+  if (window.cart) {
+    window.cart.hideCart();
+  }
+}
+
+// Ensure functions are globally available
 window.addToCart = addToCart;
+window.closeCart = closeCart;
 
 // Global function to show product details
 function showProductDetails(productId) {
